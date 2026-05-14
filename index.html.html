@@ -1,0 +1,360 @@
+ <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام النخبة | الأستاذ ليث إسماعيل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --primary: #0f172a; --accent: #2563eb; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --bg: #f8fafc; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; direction: rtl; padding-bottom: 50px; }
+        .app-shell { width: 100%; max-width: 480px; margin: auto; background: #fff; min-height: 100vh; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.1); }
+        .user-identity-bar { background: #1e293b; color: #fff; padding: 10px 20px; display: none; justify-content: space-between; align-items: center; font-size: 12px; border-bottom: 3px solid var(--accent); position: sticky; top: 0; z-index: 1000; }
+        .header { background: linear-gradient(135deg, var(--primary), #1e293b); color: white; padding: 25px 20px; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; margin-bottom: 10px; }
+        .screen { padding: 20px; display: none; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: white; padding: 20px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; font-family: 'Cairo'; margin-bottom: 15px; box-sizing: border-box; }
+        .main-btn { display: flex; align-items: center; justify-content: center; padding: 16px; border-radius: 15px; border: none; cursor: pointer; color: white; gap: 10px; width: 100%; font-weight: bold; }
+        .btn-primary { background: var(--primary); }
+        .btn-sync { background: #fff; color: var(--accent); border: 2px solid var(--accent); }
+        .btn-logout { background: none; border: 1px solid var(--danger); color: var(--danger); margin-top: 20px; }
+        .student-row { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        .grade-controls { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+        .grade-input { width: 70px !important; text-align: center; font-weight: bold; border: 2px solid var(--accent) !important; margin: 0 !important; height: 40px; }
+        .quick-btn { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .footer-fixed { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 480px; padding: 15px; background: rgba(255,255,255,0.9); box-sizing: border-box; display: flex; justify-content: center; z-index: 100; }
+        .send-btn { width: 80%; background: var(--primary); color: white; padding: 15px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; font-family: 'Cairo'; }
+        #upload-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); z-index:2000; flex-direction:column; align-items:center; justify-content:center; text-align: center; padding: 20px; }
+        .archive-item { border-right: 4px solid var(--accent); background: #f1f5f9; padding: 12px; margin-bottom: 10px; border-radius: 12px; font-size: 12px; cursor: pointer; }
+        .stats-card { background: linear-gradient(135deg, #ffffff, #f0f7ff); border: 1px solid #d0e2ff; padding: 15px; border-radius: 15px; margin-bottom: 10px; border-right: 6px solid var(--success); }
+        .alert-danger-box { background: #fef2f2; border: 2px solid var(--danger); color: var(--danger); padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: bold; text-align: center; animation: pulse 2s infinite; }
+        .compassion-note { background: #fffbeb; border: 1px dashed var(--warning); color: #92400e; padding: 8px; border-radius: 10px; font-size: 11px; margin-top: 10px; font-weight: bold; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div id="upload-overlay">
+    <i class="fas fa-spinner fa-spin fa-3x" style="color:var(--accent)"></i>
+    <p id="overlay-text" style="margin-top:20px; font-weight:bold;"></p>
+</div>
+
+<div class="app-shell">
+    <div id="identity-bar" class="user-identity-bar">
+        <span><i class="fas fa-user-tie"></i> <span id="bar-name"></span></span>
+        <span><i class="fas fa-book"></i> <span id="bar-spec"></span></span>
+    </div>
+
+    <div class="header">
+        <h2 style="margin:0;">نظام النخبة الإلكتروني السحابي</h2>
+        <p style="margin:5px 0 0; opacity:0.8; font-size:12px;">تطوير: الأستاذ ليث إسماعيل</p>
+    </div>
+
+    <div id="scr-welcome" class="screen">
+        <div class="alert-danger-box">
+            <i class="fas fa-exclamation-triangle"></i> تـنـبـيـه هـام:<br>
+            يمنع إعادة تحديث البيانات نهائياً إلا بتبليغ رسمي من إدارة المدرسة.
+        </div>
+        <div class="card" style="text-align: center;">
+            <p style="font-size: 13px;">تحديث بيانات الطلاب يضمن وصول أحدث القوائم لهاتفك.</p>
+            <button id="btn-sync-action" class="main-btn btn-sync" onclick="syncData()">تحديث بيانات الطلاب الآن</button>
+            <div id="sync-info" style="display:none; margin-top:15px;">
+                <div id="success-msg" style="color:var(--success); font-weight:bold; margin-bottom:5px;"><i class="fas fa-check-circle"></i> تم التحديث، يمكنك الاستمرار الآن</div>
+                <p id="last-sync-date" style="font-size:12px; color:var(--primary); font-weight:bold; background:#e2e8f0; padding:5px; border-radius:8px;"></p>
+            </div>
+        </div>
+        <button class="main-btn btn-primary" id="welcome-next" onclick="handleWelcomeNext()" disabled>التالي (يجب التحديث أولاً)</button>
+    </div>
+
+    <div id="scr-prof" class="screen">
+        <div class="card">
+            <h3>البصمة الإلكترونية</h3>
+            <input type="text" id="p-name" placeholder="الاسم الثلاثي للأستاذ">
+            <input type="text" id="p-spec" placeholder="الاختصاص">
+        </div>
+        <button class="main-btn btn-primary" onclick="saveProf()">حفظ البصمة والدخول</button>
+    </div>
+
+    <div id="scr-home" class="screen">
+        <div style="display: grid; gap: 12px;">
+            <button class="main-btn" style="background:var(--success)" onclick="openWork('attendance')"><i class="fas fa-user-check"></i> تسجيل الغيابات اليومية</button>
+            <button class="main-btn" style="background:var(--accent)" onclick="openWork('grades')"><i class="fas fa-edit"></i> رصد درجات الطلاب</button>
+            <button class="main-btn" style="background:#8b5cf6" onclick="showStats()"><i class="fas fa-chart-pie"></i> نسب نجاحي</button>
+            <button class="main-btn" style="background:#64748b" onclick="showArchive()"><i class="fas fa-archive"></i> أرشيف المرسلات</button>
+            
+            <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                <button class="main-btn btn-logout" onclick="devReset()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
+                <p style="font-size: 10px; color: var(--danger); text-align: center; margin-top: 8px; font-weight: bold;">تحذير: تسجيل الخروج يمسح بياناتك وأرشيفك نهائياً.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="scr-stats" class="screen">
+        <button onclick="goHome()" style="border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:15px;"><i class="fas fa-arrow-right"></i> رجوع</button>
+        <h3><i class="fas fa-chart-line"></i> إحصائيات نسب النجاح</h3>
+        <div id="stats-list"></div>
+    </div>
+
+    <div id="scr-archive" class="screen">
+        <button onclick="goHome()" style="border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:15px;"><i class="fas fa-arrow-right"></i> رجوع</button>
+        <h3><i class="fas fa-history"></i> أرشيف إرسالاتك</h3>
+        <div id="archive-list"></div>
+    </div>
+
+    <div id="scr-work" class="screen">
+        <button onclick="goHome()" style="border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:10px;"><i class="fas fa-arrow-right"></i> رجوع</button>
+        <div class="card">
+            <select id="w-stage" onchange="updateFilters('stage')"><option value="">اختر المرحلة</option></select>
+            <select id="w-dept" onchange="updateFilters('dept')" style="display:none"></select>
+            <select id="w-class" onchange="updateFilters('class')" style="display:none"></select>
+            <select id="w-sub" onchange="updateFilters('sub')" style="display:none"></select>
+            <div id="grade-extra" style="display:none">
+                <select id="w-period" onchange="toggleExamSelect(); loadGradesLocal();"><option value="الفصل الاول">الفصل الاول</option><option value="نصف السنة">نصف السنة</option><option value="الفصل الثاني">الفصل الثاني</option></select>
+                <select id="w-exam" onchange="loadGradesLocal();"><option value="الشهر الاول">الشهر الاول</option><option value="الشهر الثاني">الشهر الثاني</option><option value="الشهر الثالث">الشهر الثالث</option></select>
+            </div>
+        </div>
+        <div id="student-list" style="margin-bottom:100px;"></div>
+        <div class="footer-fixed">
+            <button id="main-save-btn" class="send-btn" onclick="initiateUpload()" style="display:none;">إرسال البيانات للسيرفر</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaiwrUCv-p3L8X_CFYVmdsLnecxQisrzD9yNuqbwjeLXsNovQZdo_JevDJSdicQDNTjA/exec";
+    const SUBJECTS = {
+        "الاول": { "تكرير النفط ومعالجة الغاز": ["اللغة العربية", "اللغة الانكليزية", "التربية الاسلامية", "الرياضيات", "الطبيعيات", "تطبيقات الحاسوب", "العلوم الصناعية", "الرسم الصناعي", "التدريب العملي", "التربية الرياضية"], "الامن السيبراني": ["اللغة العربية", "اللغة الانكليزية", "التربية الاسلامية", "الرياضيات", "الطبيعيات", "تطبيقات الحاسوب", "اساسيات الكهرباء والالكترون", "المبادئ الاساسية للحاسوب", "تجميع الحاسوب", "التربية الرياضية", "مبادئ الاتصالات والشبكات"] },
+        "الثاني": { "تكرير النفط ومعالجة الغاز": ["اللغة العربية", "اللغة الانكليزية", "التربية الاسلامية", "الرياضيات", "الطبيعيات", "تطبيقات الحاسوب", "العلوم الصناعية", "الرسم الصناعي", "التدريب العملي", "التربية الرياضية"], "الامن السيبراني": ["اللغة العربية", "اللغة الانكليزية", "التربية الاسلامية", "الرياضيات", "الطبيعيات", "تطبيقات الحاسوب", "اساسيات الامن السيبراني", "حماية انظمة التشغيل", "امن الشبكات والحوسبة السحابية", "التربية الرياضية"] }
+    };
+
+    let db = JSON.parse(localStorage.getItem('nukba_db')) || [];
+    let currentMode = '';
+
+    window.onload = () => {
+        checkSyncTimer();
+        const lastSync = localStorage.getItem('nukba_sync_time');
+        if(db.length > 0) {
+            document.getElementById('sync-info').style.display = 'block';
+            document.getElementById('last-sync-date').innerText = "تاريخ آخر تحديث: " + lastSync;
+            document.getElementById('welcome-next').disabled = false;
+            document.getElementById('welcome-next').innerText = "التالي";
+        }
+        const prof = localStorage.getItem('nukba_prof');
+        if(prof) updateIdentityBar(JSON.parse(prof));
+        showScreen('scr-welcome');
+    };
+
+    function checkSyncTimer() {
+        const lastSyncTs = localStorage.getItem('nukba_sync_timestamp');
+        if(lastSyncTs) {
+            const hoursLeft = 24 - ((Date.now() - parseInt(lastSyncTs)) / (1000 * 60 * 60));
+            if(hoursLeft > 0) {
+                const btn = document.getElementById('btn-sync-action');
+                btn.disabled = true;
+                btn.innerText = `التحديث متاح بعد ${Math.ceil(hoursLeft)} ساعة`;
+            }
+        }
+    }
+
+    async function syncData() {
+        document.getElementById('upload-overlay').style.display = 'flex';
+        document.getElementById('overlay-text').innerText = "جاري المزامنة...";
+        try {
+            const r = await fetch(SCRIPT_URL);
+            db = await r.json();
+            const now = new Date().toLocaleString('ar-EG');
+            localStorage.setItem('nukba_db', JSON.stringify(db));
+            localStorage.setItem('nukba_sync_time', now);
+            localStorage.setItem('nukba_sync_timestamp', Date.now().toString());
+            document.getElementById('sync-info').style.display = 'block';
+            document.getElementById('last-sync-date').innerText = "تاريخ آخر تحديث: " + now;
+            const nextBtn = document.getElementById('welcome-next');
+            nextBtn.disabled = false;
+            nextBtn.innerText = "التالي";
+            alert("تم تحديث البيانات بنجاح.");
+            checkSyncTimer();
+        } catch(e) { alert("خطأ في الاتصال"); }
+        document.getElementById('upload-overlay').style.display = 'none';
+    }
+
+    function saveProf() {
+        const n = document.getElementById('p-name').value, s = document.getElementById('p-spec').value;
+        if(!n || !s) return alert("يرجى ملء البصمة");
+        localStorage.setItem('nukba_prof', JSON.stringify({n, s}));
+        updateIdentityBar({n, s});
+        showScreen('scr-home');
+    }
+
+    function updateIdentityBar(data) {
+        document.getElementById('identity-bar').style.display = 'flex';
+        document.getElementById('bar-name').innerText = data.n;
+        document.getElementById('bar-spec').innerText = data.s;
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.style.display='none');
+        document.getElementById(id).style.display='block';
+    }
+
+    function openWork(m) {
+        currentMode = m; showScreen('scr-work');
+        document.getElementById('grade-extra').style.display = 'none';
+        document.getElementById('student-list').innerHTML = "";
+        document.getElementById('main-save-btn').style.display = 'none';
+        const stages = [...new Set(db.map(x => x["المرحلة"]))].filter(Boolean);
+        const sel = document.getElementById('w-stage');
+        sel.innerHTML = '<option value="">اختر المرحلة</option>';
+        stages.forEach(st => sel.innerHTML += `<option value="${st}">${st}</option>`);
+        document.getElementById('w-dept').style.display = 'none';
+        document.getElementById('w-class').style.display = 'none';
+        document.getElementById('w-sub').style.display = 'none';
+    }
+
+    function toggleExamSelect() {
+        const period = document.getElementById('w-period').value;
+        document.getElementById('w-exam').style.display = (period === "نصف السنة") ? "none" : "block";
+    }
+
+    function updateFilters(level) {
+        const stage = document.getElementById('w-stage').value, deptSel = document.getElementById('w-dept'), classSel = document.getElementById('w-class'), subSel = document.getElementById('w-sub');
+        if(level === 'stage' && stage) {
+            const depts = [...new Set(db.filter(x => x["المرحلة"] == stage).map(x => x["القسم"]))].filter(Boolean);
+            deptSel.innerHTML = '<option value="">اختر القسم</option>';
+            depts.forEach(d => deptSel.innerHTML += `<option value="${d}">${d}</option>`);
+            deptSel.style.display = 'block'; classSel.style.display = 'none'; subSel.style.display = 'none';
+        } else if(level === 'dept') {
+            const cls = [...new Set(db.filter(x => x["المرحلة"] == stage && x["القسم"] == deptSel.value).map(x => x["الشعبة"]))].filter(Boolean);
+            classSel.innerHTML = '<option value="">اختر الشعبة</option>';
+            cls.forEach(c => classSel.innerHTML += `<option value="${c}">${c}</option>`);
+            classSel.style.display = 'block'; subSel.style.display = 'none';
+        } else if(level === 'class') {
+            const subs = SUBJECTS[stage]?.[deptSel.value] || [];
+            subSel.innerHTML = '<option value="">اختر المادة</option>';
+            subs.forEach(s => subSel.innerHTML += `<option value="${s}">${s}</option>`);
+            subSel.style.display = 'block';
+        } else if(level === 'sub') {
+            if(currentMode === 'grades') { document.getElementById('grade-extra').style.display = 'block'; toggleExamSelect(); }
+            renderStudents();
+            if(currentMode === 'grades') loadGradesLocal();
+        }
+    }
+
+    function renderStudents() {
+        const s = document.getElementById('w-stage').value, d = document.getElementById('w-dept').value, c = document.getElementById('w-class').value, container = document.getElementById('student-list');
+        container.innerHTML = "";
+        db.filter(x => x["المرحلة"] == s && x["القسم"] == d && x["الشعبة"] == c).forEach(st => {
+            const row = document.createElement('div'); row.className = 'card student-row';
+            row.setAttribute('data-id', st["الرمز المدرسي"]); row.setAttribute('data-name', st["اسم الطالب"]);
+            if(currentMode === 'grades') {
+                row.innerHTML = `<b>${st["اسم الطالب"]}</b><div class="grade-controls"><input type="text" class="grade-input" placeholder="0" oninput="saveGradesLocal()"><button class="quick-btn" style="color:var(--danger)" onclick="setGrade(this, 'غائب')">غائب</button><button class="quick-btn" style="color:var(--warning)" onclick="setGrade(this, 'مؤجل')">مؤجل</button></div>`;
+            } else { row.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;"><b>${st["اسم الطالب"]}</b><button class="quick-btn" style="background:var(--success); color:white; border:none; max-width:80px;" onclick="toggleAt(this)">حاضر</button></div>`; }
+            container.appendChild(row);
+        });
+        document.getElementById('main-save-btn').style.display = 'block';
+    }
+
+    function setGrade(btn, val) { const input = btn.parentElement.querySelector('input'); input.value = val; input.style.color = (val === 'غائب') ? 'var(--danger)' : 'var(--warning)'; saveGradesLocal(); }
+
+    function saveGradesLocal() {
+        if(currentMode !== 'grades') return;
+        const key = `grades_${document.getElementById('w-stage').value}_${document.getElementById('w-dept').value}_${document.getElementById('w-class').value}_${document.getElementById('w-sub').value}_${document.getElementById('w-period').value}_${document.getElementById('w-exam').value}`;
+        const data = {};
+        document.querySelectorAll('.student-row').forEach(r => { const val = r.querySelector('input').value; if(val) data[r.getAttribute('data-id')] = val; });
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function loadGradesLocal() {
+        if(currentMode !== 'grades') return;
+        const key = `grades_${document.getElementById('w-stage').value}_${document.getElementById('w-dept').value}_${document.getElementById('w-class').value}_${document.getElementById('w-sub').value}_${document.getElementById('w-period').value}_${document.getElementById('w-exam').value}`;
+        const saved = JSON.parse(localStorage.getItem(key));
+        if(saved) document.querySelectorAll('.student-row').forEach(r => { 
+            const val = saved[r.getAttribute('data-id')]; 
+            if(val) { const i = r.querySelector('input'); i.value = val; i.style.color = (val==='غائب'?'var(--danger)':val==='مؤجل'?'var(--warning)':'black'); } 
+        });
+    }
+
+    function toggleAt(b) { const isP = b.innerText === 'حاضر'; b.innerText = isP ? 'غائب' : 'حاضر'; b.style.background = isP ? 'var(--danger)' : 'var(--success)'; }
+
+    async function initiateUpload() {
+        const prof = JSON.parse(localStorage.getItem('nukba_prof')), pVal = document.getElementById('w-period').value, eVal = document.getElementById('w-exam').value, stage = document.getElementById('w-stage').value, dept = document.getElementById('w-dept').value, cls = document.getElementById('w-class').value, sub = document.getElementById('w-sub').value;
+        const mergedPeriod = (pVal === "نصف السنة") ? "نصف السنة" : `${pVal} - ${eVal}`;
+        let dataRows = [];
+        document.querySelectorAll('.student-row').forEach(r => {
+            let val = "", status = "";
+            if(currentMode === 'grades') { val = r.querySelector('input').value.trim(); status = (pVal === "نصف السنة") ? "درجة نصف السنة" : eVal; if(!val) return; } 
+            else { if(r.querySelector('button').innerText === 'غائب') { val = "غائب"; status = "غياب يومي"; } else return; }
+            dataRows.push({"الرمز المدرسي": r.getAttribute('data-id'), "اسم الطالب": r.getAttribute('data-name'), "المرحلة": stage, "القسم": dept, "الشعبة": cls, "المادة": sub, "الفترة": mergedPeriod, "الامتحان/الحالة": status, "الدرجة": val, "المدرس": prof.n, "التاريخ": new Date().toLocaleDateString('ar-EG'), "raw_grade": val });
+        });
+        if(currentMode === 'attendance' && dataRows.length === 0) dataRows.push({"الرمز المدرسي": "N/A", "اسم الطالب": "لا يوجد غياب للشعبة", "المرحلة": stage, "القسم": dept, "الشعبة": cls, "المادة": sub, "الفترة": mergedPeriod, "الامتحان/الحالة": "حضور كامل", "الدرجة": "كامل", "المدرس": prof.n, "التاريخ": new Date().toLocaleDateString('ar-EG')});
+        else if(dataRows.length === 0) return alert("لا توجد بيانات للإرسال");
+        document.getElementById('upload-overlay').style.display='flex';
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({type: currentMode, data: dataRows}) });
+            saveToArchive(currentMode, stage, dept, cls, sub, dataRows, mergedPeriod);
+            alert("تم الرفع بنجاح."); goHome();
+        } catch(e) { alert("خطأ في الرفع"); }
+        document.getElementById('upload-overlay').style.display='none';
+    }
+
+    function saveToArchive(mode, st, dp, cl, sub, rows, period) {
+        let arch = JSON.parse(localStorage.getItem('nukba_archive')) || [];
+        const details = rows.map(r => `${r["اسم الطالب"]}: ${r["الدرجة"]}`).join('\n');
+        arch.unshift({ date: new Date().toLocaleString('ar-EG'), mode: mode==='grades'?'درجات':'غيابات', info: `${st} - ${dp} - شعبة ${cl}`, sub: sub, count: rows.length, details: details, raw_rows: rows, period: period });
+        localStorage.setItem('nukba_archive', JSON.stringify(arch.slice(0, 50)));
+    }
+
+    function showArchive() {
+        showScreen('scr-archive');
+        const list = document.getElementById('archive-list');
+        const arch = JSON.parse(localStorage.getItem('nukba_archive')) || [];
+        list.innerHTML = arch.length ? "" : "<p>لا يوجد سجلات مرسلة بعد.</p>";
+        arch.forEach((item, index) => { 
+            list.innerHTML += `<div class="archive-item" onclick="viewArchiveDetail(${index})">
+                <b>${item.date} (${item.mode})</b><br>
+                <span style="color:var(--accent); font-weight:bold;">المادة: ${item.sub} (${item.period})</span><br>
+                <span>الجهة: ${item.info}</span><br>
+                <small>اضغط للتفاصيل</small>
+            </div>`; 
+        });
+    }
+
+    function viewArchiveDetail(idx) {
+        const item = JSON.parse(localStorage.getItem('nukba_archive'))[idx];
+        alert(`تفاصيل الإرسال:\n------------------\nالتاريخ: ${item.date}\nالنوع: ${item.mode}\nالمادة: ${item.sub}\nالفترة: ${item.period}\nالشعبة: ${item.info}\n\nالبيانات:\n${item.details}`);
+    }
+
+    function showStats() {
+        showScreen('scr-stats');
+        const list = document.getElementById('stats-list');
+        const arch = JSON.parse(localStorage.getItem('nukba_archive')) || [];
+        const gradeArch = arch.filter(a => a.mode === 'درجات');
+        list.innerHTML = gradeArch.length ? "" : "<p style='text-align:center; padding:20px;'>لا توجد درجات مرسلة لحساب النسب.</p>";
+        gradeArch.forEach(entry => {
+            let total = 0, pass = 0;
+            entry.raw_rows.forEach(r => { const g = parseFloat(r.raw_grade); if(!isNaN(g)) { total++; if(g >= 50) pass++; } });
+            const percent = total > 0 ? ((pass / total) * 100).toFixed(1) : 0;
+            
+            let compassionMsg = "";
+            if(parseFloat(percent) < 50) {
+                compassionMsg = `<div class="compassion-note"><i class="fas fa-heart"></i> تنبيه: أكثر من نصف الشعبة راسبة، يرجى مراعاة درجات الطلبة رجاءً.</div>`;
+            }
+
+            list.innerHTML += `<div class="stats-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <b>${entry.sub} (${entry.period})</b>
+                    <span style="color:${parseFloat(percent) < 50 ? 'var(--danger)' : 'var(--success)'}; font-weight:bold; font-size:18px;">${percent}%</span>
+                </div>
+                <div style="font-size:12px; color:#475569; margin-top:5px;">الشعبة: ${entry.info}<br>الناجحون: ${pass} | الراسبون: ${total - pass}</div>
+                ${compassionMsg}
+            </div>`;
+        });
+    }
+
+    function handleWelcomeNext() { if(localStorage.getItem('nukba_prof')) showScreen('scr-home'); else showScreen('scr-prof'); }
+    function goHome() { showScreen('scr-home'); }
+    function devReset() { if(confirm("هل أنت متأكد؟ تسجيل الخروج سيمسح بياناتك نهائياً.")) { localStorage.clear(); location.reload(); } }
+</script>
+</body>
+</html>
