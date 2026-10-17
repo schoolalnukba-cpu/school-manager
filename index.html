@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -163,7 +163,6 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaiwrUCv-p3L8X_CFYVmdsLnecxQisrzD9yNuqbwjeLXsNovQZdo_JevDJSdicQDNTjA/exec";
     
-    // قائمة الـ 30 رمزاً سرياً المولدين خصيصاً للمدرسين
     const SECRET_CODES = [
         "NOKBA-9821", "NOKBA-4152", "NOKBA-7309", "NOKBA-2846", "NOKBA-5193",
         "NOKBA-6470", "NOKBA-3918", "NOKBA-8264", "NOKBA-1537", "NOKBA-9082",
@@ -186,7 +185,6 @@
         }
     };
 
-    // جدول الحصص الأسبوعي كاملاً ومطابقاً للجدول المطلوب
     const RAW_SCHEDULE = [
         { day: "الأحد", period: 1, c: "اول نفط أ", sub: "التدريب العملي", t: "مدرس-نفط" },
         { day: "الأحد", period: 1, c: "اول امن أ", sub: "اساسيات الكهرباء", t: "ابوالفضل" },
@@ -829,27 +827,39 @@
         document.getElementById(id).style.display='block';
     }
 
+    function populateStages(selectElementId) {
+        const sel = document.getElementById(selectElementId);
+        sel.innerHTML = '<option value="">اختر المرحلة</option>';
+        
+        // استخراج المراحل الفريدة وترتيبها تصاعدياً (الاول ثم الثاني)
+        let stages = [...new Set(db.map(x => x["المرحلة"]))].filter(Boolean);
+        stages.sort((a, b) => {
+            if (a.includes('الاول') || a.includes('الأول')) return -1;
+            if (b.includes('الاول') || b.includes('الأول')) return 1;
+            return 0;
+        });
+
+        stages.forEach(st => sel.innerHTML += `<option value="${st}">${st}</option>`);
+    }
+
     function openWork(m) {
         currentMode = m; showScreen('scr-work');
         document.getElementById('grade-extra').style.display = 'none';
         document.getElementById('student-list').innerHTML = "";
         document.getElementById('main-save-btn').style.display = 'none';
-        const stages = [...new Set(db.map(x => x["المرحلة"]))].filter(Boolean);
-        const sel = document.getElementById('w-stage');
-        sel.innerHTML = '<option value="">اختر المرحلة</option>';
-        stages.forEach(st => sel.innerHTML += `<option value="${st}">${st}</option>`);
+        
+        populateStages('w-stage');
+
         document.getElementById('w-dept').style.display = 'none';
         document.getElementById('w-class').style.display = 'none';
         document.getElementById('w-sub').style.display = 'none';
     }
 
-    /* --- إدارة التبليغات الإدارية --- */
     function openAdminNotes() {
         showScreen('scr-admin-notes');
-        const stages = [...new Set(db.map(x => x["المرحلة"]))].filter(Boolean);
-        const sel = document.getElementById('an-stage');
-        sel.innerHTML = '<option value="">اختر المرحلة</option>';
-        stages.forEach(st => sel.innerHTML += `<option value="${st}">${st}</option>`);
+        
+        populateStages('an-stage');
+
         document.getElementById('an-dept').style.display = 'none';
         document.getElementById('an-class').style.display = 'none';
         document.getElementById('an-student').style.display = 'none';
@@ -861,23 +871,22 @@
         const deptSel = document.getElementById('an-dept');
         const classSel = document.getElementById('an-class');
         const studSel = document.getElementById('an-student');
-        const normStage = normalizeText(stage);
 
         if(level === 'stage' && stage) {
-            const depts = [...new Set(db.filter(x => normalizeText(x["المرحلة"]) === normStage).map(x => x["القسم"]))].filter(Boolean);
+            const depts = [...new Set(db.filter(x => x["المرحلة"] == stage).map(x => x["القسم"]))].filter(Boolean);
             deptSel.innerHTML = '<option value="">اختر القسم</option>';
             depts.forEach(d => deptSel.innerHTML += `<option value="${d}">${d}</option>`);
             deptSel.style.display = 'block'; classSel.style.display = 'none'; studSel.style.display = 'none';
         } else if(level === 'dept') {
-            const normDept = normalizeText(deptSel.value);
-            const cls = [...new Set(db.filter(x => normalizeText(x["المرحلة"]) === normStage && normalizeText(x["القسم"]) === normDept).map(x => x["الشعبة"]))].filter(Boolean);
+            const cls = [...new Set(db.filter(x => x["المرحلة"] == stage && x["القسم"] == deptSel.value).map(x => x["الشعبة"]))].filter(Boolean);
             classSel.innerHTML = '<option value="">اختر الشعبة</option>';
             cls.forEach(c => classSel.innerHTML += `<option value="${c}">${c}</option>`);
             classSel.style.display = 'block'; studSel.style.display = 'none';
         } else if(level === 'class') {
-            const normDept = normalizeText(deptSel.value);
-            const normClass = normalizeText(classSel.value);
-            const studs = db.filter(x => normalizeText(x["المرحلة"]) === normStage && normalizeText(x["القسم"]) === normDept && normalizeText(x["الشعبة"]) === normClass);
+            // فرز الطلاب أبجدياً في التبليغات الإدارية أيضاً
+            let studs = db.filter(x => x["المرحلة"] == stage && x["القسم"] == deptSel.value && x["الشعبة"] == classSel.value);
+            studs.sort((a, b) => (a["اسم الطالب"] || "").localeCompare(b["اسم الطالب"] || "", 'ar'));
+            
             studSel.innerHTML = '<option value="">اختر الطالب</option>';
             studs.forEach(s => studSel.innerHTML += `<option value="${s["اسم الطالب"]}">${s["اسم الطالب"]}</option>`);
             studSel.style.display = 'block';
@@ -894,7 +903,7 @@
 
         if(!stage || !dept || !cls || !student || !noteText) return alert("يرجى اختيار كافة الحقول وكتابة الملاحظة.");
 
-        const foundStudent = db.find(x => normalizeText(x["المرحلة"]) === normalizeText(stage) && normalizeText(x["القسم"]) === normalizeText(dept) && normalizeText(x["الشعبة"]) === normalizeText(cls) && x["اسم الطالب"] === student);
+        const foundStudent = db.find(x => x["المرحلة"] == stage && x["القسم"] == dept && x["الشعبة"] == cls && x["اسم الطالب"] == student);
         const schoolCode = foundStudent ? (foundStudent["الرمز المدرسي"] || "N/A") : "N/A";
 
         const payload = [{
@@ -924,7 +933,6 @@
         document.getElementById('upload-overlay').style.display = 'none';
     }
 
-    /* --- إدارة جدول الحصص الأسبوعي --- */
     function openMySchedule() {
         showScreen('scr-schedule');
         const teachers = [...new Set(WEEKLY_SCHEDULE.map(x => x.teacher))];
@@ -973,3 +981,242 @@
     }
 
     function toggleExamSelect() {
+        const period = document.getElementById('w-period').value;
+        document.getElementById('w-exam').style.display = (period === "نصف السنة") ? "none" : "block";
+    }
+
+    function updateFilters(level) {
+        const stage = document.getElementById('w-stage').value;
+        const deptSel = document.getElementById('w-dept');
+        const classSel = document.getElementById('w-class');
+        const subSel = document.getElementById('w-sub');
+
+        if(level === 'stage') {
+            deptSel.innerHTML = '<option value="">اختر القسم</option>';
+            classSel.innerHTML = '<option value="">اختر الشعبة</option>';
+            subSel.innerHTML = '<option value="">اختر المادة</option>';
+            classSel.style.display = 'none';
+            subSel.style.display = 'none';
+            document.getElementById('grade-extra').style.display = 'none';
+
+            if(stage) {
+                // الاعتماد حصراً على الأقسام الحقيقية الموجودة في قاعدة البيانات (db) لمنع أي تكرار أو أقسام وهمية
+                const deptsFromDb = [...new Set(db.filter(x => x["المرحلة"] == stage).map(x => x["القسم"]))].filter(Boolean);
+                
+                deptsFromDb.forEach(d => deptSel.innerHTML += `<option value="${d}">${d}</option>`);
+                deptSel.style.display = 'block';
+            } else {
+                deptSel.style.display = 'none';
+            }
+        } else if(level === 'dept') {
+            const dept = deptSel.value;
+            classSel.innerHTML = '<option value="">اختر الشعبة</option>';
+            subSel.innerHTML = '<option value="">اختر المادة</option>';
+            classSel.style.display = 'none';
+            document.getElementById('grade-extra').style.display = 'none';
+
+            if(stage && dept) {
+                const cls = [...new Set(db.filter(x => x["المرحلة"] == stage && x["القسم"] == dept).map(x => x["الشعبة"]))].filter(Boolean);
+                cls.forEach(c => classSel.innerHTML += `<option value="${c}">${c}</option>`);
+                classSel.style.display = 'block';
+            } else {
+                classSel.style.display = 'none';
+            }
+        } else if(level === 'class') {
+            const dept = deptSel.value;
+            subSel.innerHTML = '<option value="">اختر المادة</option>';
+            document.getElementById('grade-extra').style.display = 'none';
+
+            if(stage && dept) {
+                const subs = (SUBJECTS[stage] && SUBJECTS[stage][dept]) ? SUBJECTS[stage][dept] : ["اللغة العربية", "اللغة الانكليزية", "التربية الاسلامية", "الرياضيات", "الطبيعيات", "تطبيقات الحاسوب", "العلوم الصناعية", "الرسم الصناعي", "التدريب العملي", "التربية الرياضية"];
+                subs.forEach(s => subSel.innerHTML += `<option value="${s}">${s}</option>`);
+                subSel.style.display = 'block';
+            } else {
+                subSel.style.display = 'none';
+            }
+        } else if(level === 'sub') {
+            if(currentMode === 'grades') { 
+                document.getElementById('grade-extra').style.display = 'block'; 
+                toggleExamSelect(); 
+            }
+            renderStudents();
+            if(currentMode === 'grades') loadGradesLocal();
+        }
+    }
+
+    function renderStudents() {
+        const s = document.getElementById('w-stage').value;
+        const d = document.getElementById('w-dept').value;
+        const c = document.getElementById('w-class').value;
+        const container = document.getElementById('student-list');
+        container.innerHTML = "";
+
+        // جلب الطلاب وفرزهم أبجدياً حسب اسم الطالب
+        let studentsList = db.filter(x => x["المرحلة"] == s && x["القسم"] == d && x["الشعبة"] == c);
+        studentsList.sort((a, b) => (a["اسم الطالب"] || "").localeCompare(b["اسم الطالب"] || "", 'ar'));
+
+        studentsList.forEach(st => {
+            const row = document.createElement('div'); row.className = 'card student-row';
+            row.setAttribute('data-id', st["الرمز المدرسي"]); row.setAttribute('data-name', st["اسم الطالب"]);
+            if(currentMode === 'grades') {
+                row.innerHTML = `<b>${st["اسم الطالب"]}</b><div class="grade-controls"><input type="text" class="grade-input" placeholder="0" oninput="saveGradesLocal()"><button class="quick-btn" style="color:var(--danger)" onclick="setGrade(this, 'غائب')">غائب</button><button class="quick-btn" style="color:var(--warning)" onclick="setGrade(this, 'مؤجل')">مؤجل</button></div>`;
+            } else { row.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;"><b>${st["اسم الطالب"]}</b><button class="quick-btn" style="background:var(--success); color:white; border:none; max-width:80px;" onclick="toggleAt(this)">حاضر</button></div>`; }
+            container.appendChild(row);
+        });
+        document.getElementById('main-save-btn').style.display = 'block';
+    }
+
+    function setGrade(btn, val) { const input = btn.parentElement.querySelector('input'); input.value = val; input.style.color = (val === 'غائب') ? 'var(--danger)' : 'var(--warning)'; saveGradesLocal(); }
+
+    function saveGradesLocal() {
+        if(currentMode !== 'grades') return;
+        const key = `grades_${document.getElementById('w-stage').value}_${document.getElementById('w-dept').value}_${document.getElementById('w-class').value}_${document.getElementById('w-sub').value}_${document.getElementById('w-period').value}_${document.getElementById('w-exam').value}`;
+        const data = {};
+        document.querySelectorAll('.student-row').forEach(r => { const val = r.querySelector('input').value; if(val) data[r.getAttribute('data-id')] = val; });
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function loadGradesLocal() {
+        if(currentMode !== 'grades') return;
+        const key = `grades_${document.getElementById('w-stage').value}_${document.getElementById('w-dept').value}_${document.getElementById('w-class').value}_${document.getElementById('w-sub').value}_${document.getElementById('w-period').value}_${document.getElementById('w-exam').value}`;
+        const saved = JSON.parse(localStorage.getItem(key));
+        if(saved) document.querySelectorAll('.student-row').forEach(r => { 
+            const val = saved[r.getAttribute('data-id')]; 
+            if(val) { const i = r.querySelector('input'); i.value = val; i.style.color = (val==='غائب'?'var(--danger)':val==='مؤجل'?'var(--warning)':'black'); } 
+        });
+    }
+
+    function toggleAt(b) { const isP = b.innerText === 'حاضر'; b.innerText = isP ? 'غائب' : 'حاضر'; b.style.background = isP ? 'var(--danger)' : 'var(--success)'; }
+
+    async function initiateUpload() {
+        const prof = JSON.parse(localStorage.getItem('nukba_prof')), pVal = document.getElementById('w-period').value, eVal = document.getElementById('w-exam').value, stage = document.getElementById('w-stage').value, dept = document.getElementById('w-dept').value, cls = document.getElementById('w-class').value, sub = document.getElementById('w-sub').value;
+        const mergedPeriod = (pVal === "نصف السنة") ? "نصف السنة" : `${pVal} - ${eVal}`;
+        let dataRows = [];
+        document.querySelectorAll('.student-row').forEach(r => {
+            let val = "", status = "";
+            if(currentMode === 'grades') { 
+                val = r.querySelector('input').value.trim(); 
+                status = (pVal === "نصف السنة") ? "درجة نصف السنة" : eVal; 
+                if(!val) return; 
+                dataRows.push({
+                    "الرمز المدرسي": r.getAttribute('data-id'),
+                    "اسم الطالب": r.getAttribute('data-name'),
+                    "المرحلة": stage,
+                    "القسم": dept,
+                    "الشعبة": cls,
+                    "المادة": sub,
+                    "الفترة": mergedPeriod,
+                    "الامتحان/الحالة": status,
+                    "الدرجة": val,
+                    "المدرس": prof.n,
+                    "الرمز السري": prof.code,
+                    "التاريخ": new Date().toLocaleDateString('ar-EG'),
+                    "raw_grade": val
+                });
+            } else { 
+                if(r.querySelector('button').innerText === 'غائب') { 
+                    val = "غائب"; 
+                    status = "غياب يومي"; 
+                    dataRows.push({
+                        "الرمز المدرسي": r.getAttribute('data-id'),
+                        "اسم الطالب": r.getAttribute('data-name'),
+                        "المرحلة": stage,
+                        "القسم": dept,
+                        "الشعبة": cls,
+                        "المادة": sub,
+                        "الفترة": "غياب يومي",
+                        "الحالة": "غائب",
+                        "التأكيد": "غياب يومي",
+                        "المدرس": prof.n,
+                        "الرمز السري": prof.code,
+                        "التاريخ": new Date().toLocaleDateString('ar-EG')
+                    });
+                } 
+            }
+        });
+        if(currentMode === 'attendance' && dataRows.length === 0) {
+            dataRows.push({
+                "الرمز المدرسي": "N/A",
+                "اسم الطالب": "لا يوجد غياب للشعبة",
+                "المرحلة": stage,
+                "القسم": dept,
+                "الشعبة": cls,
+                "المادة": sub,
+                "الفترة": "حضور كامل",
+                "الحالة": "حاضر",
+                "التأكيد": "حضور كامل",
+                "المدرس": prof.n,
+                "الرمز السري": prof.code,
+                "التاريخ": new Date().toLocaleDateString('ar-EG')
+            });
+        } else if(dataRows.length === 0) return alert("لا توجد بيانات للإرسال");
+
+        document.getElementById('upload-overlay').style.display='flex';
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({type: currentMode, data: dataRows}) });
+            saveToArchive(currentMode, stage, dept, cls, sub, dataRows, mergedPeriod);
+            alert("تم الرفع بنجاح."); goHome();
+        } catch(e) { alert("خطأ في الرفع"); }
+        document.getElementById('upload-overlay').style.display='none';
+    }
+
+    function saveToArchive(mode, st, dp, cl, sub, rows, period) {
+        let arch = JSON.parse(localStorage.getItem('nukba_archive')) || [];
+        const details = rows.map(r => `${r["اسم الطالب"]}: ${r["الدرجة"] || r["التأكيد"] || r["الحالة"]}`).join('\n');
+        arch.unshift({ date: new Date().toLocaleString('ar-EG'), mode: mode==='grades'?'درجات':mode==='attendance'?'غيابات':'تبليغ إداري', info: `${st} - ${dp} - شعبة ${cl}`, sub: sub, count: rows.length, details: details, raw_rows: rows, period: period });
+        localStorage.setItem('nukba_archive', JSON.stringify(arch.slice(0, 50)));
+    }
+
+    function showArchive() {
+        showScreen('scr-archive');
+        const list = document.getElementById('archive-list');
+        const arch = JSON.parse(localStorage.getItem('nukba_archive')) || [];
+        list.innerHTML = arch.length ? "" : "<p>لا يوجد سجلات مرسلة بعد.</p>";
+        arch.forEach((item, index) => { 
+            list.innerHTML += `<div class="archive-item" onclick="viewArchiveDetail(${index})">
+                <b>${item.date} (${item.mode})</b><br>
+                <span style="color:var(--accent); font-weight:bold;">المادة: ${item.sub} (${item.period})</span><br>
+                <span>الجهة: ${item.info}</span><br>
+                <small>اضغط للتفاصيل</small>
+            </div>`; 
+        });
+    }
+
+    function viewArchiveDetail(idx) {
+        const item = JSON.parse(localStorage.getItem('nukba_archive'))[idx];
+        alert(`تفاصيل الإرسال:\n------------------\nالتاريخ: ${item.date}\nالنوع: ${item.mode}\nالمادة: ${item.sub}\nالفترة: ${item.period}\nالشعبة: ${item.info}\n\nالبيانات:\n${item.details}`);
+    }
+
+    function showStats() {
+        showScreen('scr-stats');
+        const list = document.getElementById('stats-list');
+        const arch = JSON.parse(localStorage.getItem('nukba_archive')) || [];
+        const gradeArch = arch.filter(a => a.mode === 'درجات');
+        list.innerHTML = gradeArch.length ? "" : "<p style='text-align:center; padding:20px;'>لا توجد درجات مرسلة لحساب النسب.</p>";
+        gradeArch.forEach(entry => {
+            let total = 0, pass = 0;
+            entry.raw_rows.forEach(r => { const g = parseFloat(r.raw_grade); if(!isNaN(g)) { total++; if(g >= 50) pass++; } });
+            const percent = total > 0 ? ((pass / total) * 100).toFixed(1) : 0;
+            
+            let compassionMsg = "";
+            if(parseFloat(percent) < 50) {
+                compassionMsg = `<div class="compassion-note"><i class="fas fa-heart"></i> تنبيه: أكثر من نصف الشعبة راسبة، يرجى مراعاة درجات الطلبة رجاءً.</div>`;
+            }
+
+            list.innerHTML += `<div class="stats-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <b>${entry.sub} (${entry.period})</b>
+                    <span style="color:${parseFloat(percent) < 50 ? 'var(--danger)' : 'var(--success)'}; font-weight:bold; font-size:18px;">${percent}%</span>
+                </div>
+                <div style="font-size:12px; color:#475569; margin-top:5px;">الشعبة: ${entry.info}<br>الناجحون: ${pass} | الراسبون: ${total - pass}</div>
+                ${compassionMsg}
+            </div>`;
+        });
+    }
+
+    function handleWelcomeNext() { if(localStorage.getItem('nukba_prof')) showScreen('scr-home'); else showScreen('scr-prof'); }
+    function goHome() { showScreen('scr-home'); }
+    function devReset() { if(confirm("هل أنت متأكد؟ تسجيل الخروج سيمسح بياناتك نهائياً.")) { localStorage.clear(); location.reload(); } }
+</script>
+</body>
+</html>
