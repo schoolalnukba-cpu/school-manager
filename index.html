@@ -1,3 +1,5 @@
+
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -400,9 +402,9 @@
         { day: "الإثنين", period: 6, c: "ثاني نفط و", sub: "رياضيات", t: "اركان" },
         { day: "الإثنين", period: 6, c: "ثاني نفط د", sub: "التدريب العملي ( م )", t: "امير" },
         { day: "الإثنين", period: 6, c: "ثاني نفط هـ", sub: "التدريب العملي (م)", t: "زينب" },
-        { day: "الإثنين", period: 6, c: "ثاني امن أ", sub: "تطبيقات حاسوب", t: "عمار" },
-        { day: "الإثنين", period: 6, c: "ثاني امن ج", sub: "امن الشبكات", t: "قيصر" },
-        { day: "الإثنين", period: 6, c: "ثاني امن ب", sub: "اسلامية", t: "اسماء" },
+        { day: "الإثنين", period: 6, c: "ثاني امن أ", sub: "طبيعيات", t: "ايات" },
+        { day: "الإثنين", period: 6, c: "ثاني امن ج", sub: "حماية انظمة", t: "نورالزهراء" },
+        { day: "الإثنين", period: 6, c: "ثاني امن ب", sub: "رياضيات", t: "اركان" },
 
         // الثلاثاء
         { day: "الثلاثاء", period: 1, c: "اول نفط أ", sub: "تطبيقات حاسوب ( م)", t: "قيصر" },
@@ -825,7 +827,6 @@
         document.getElementById('student-list').innerHTML = "";
         document.getElementById('main-save-btn').style.display = 'none';
         
-        // ترتيب المراحل دائماً (الاول قبل الثاني)
         let stages = [...new Set(db.map(x => x["المرحلة"]))].filter(Boolean);
         stages.sort((a, b) => {
             if (a.includes("اول") || a.includes("الأول")) return -1;
@@ -902,7 +903,7 @@
             "القسم": dept,
             "الشعبة": cls,
             "المادة": "ملاحظة سلوكية",
-            "الفترة": "ملاحظة سلوكية",
+            "الفترة": noteText,          /* تم ضبط العمود السابع (الفترة) ليحتوي على نص الملاحظة كما كتبها المدرس */
             "الحالة": "ملاحظة سلوكية",
             "التأكيد": noteText,
             "المدرس": prof.n,
@@ -915,7 +916,7 @@
 
         try {
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({type: 'attendance', data: payload}) });
-            saveToArchive('ملاحظة سلوكية', stage, dept, cls, 'ملاحظة سلوكية', payload, 'ملاحظة سلوكية');
+            saveToArchive('ملاحظة سلوكية', stage, dept, cls, 'ملاحظة سلوكية', payload, noteText);
             alert("تم إرسال الملاحظة السلوكية بنجاح إلى شيت الغيابات.");
             goHome();
         } catch(e) { alert("حدث خطأ أثناء الإرسال."); }
@@ -1202,3 +1203,5 @@
 </script>
 </body>
 </html>
+
+```
