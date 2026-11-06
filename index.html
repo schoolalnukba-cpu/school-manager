@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -72,11 +72,11 @@
         <button class="main-btn btn-primary" id="welcome-next" onclick="handleWelcomeNext()" disabled>التالي (يجب التحديث أولاً)</button>
     </div>
 
-    <!-- 2. شاشة البصمة الإلكترونية (بدون رمز سري) -->
+    <!-- 2. شاشة البصمة الإلكترونية -->
     <div id="scr-prof" class="screen">
         <div class="card">
             <h3>البصمة الإلكترونية للتدريسي</h3>
-            <p style="font-size:12px; color:#64748b; margin-top:-5px; margin-bottom:15px;">أدخل بياناتك لتسجيل البصمة والبدء برفع الغيابات والدرجات.</p>
+            <p style="font-size:12px; color:#64748b; margin-top:-5px; margin-bottom:15px;">أدخل بياناتك لتسجيل البصمة والبدء برفع الغيابات والدرجات والتقييمات.</p>
             <input type="text" id="p-name" placeholder="الاسم الثلاثي للأستاذ">
             <input type="text" id="p-spec" placeholder="الاختصاص">
         </div>
@@ -88,6 +88,7 @@
         <div style="display: grid; gap: 12px;">
             <button class="main-btn" style="background:var(--success)" onclick="openWork('attendance')"><i class="fas fa-user-check"></i> تسجيل الغيابات اليومية</button>
             <button class="main-btn" style="background:var(--accent)" onclick="openWork('grades')"><i class="fas fa-edit"></i> رصد درجات الطلاب</button>
+            <button class="main-btn" style="background:#059669" onclick="openGroupEvaluation()"><i class="fas fa-star-half-alt"></i> التقييم الجماعي للشعبة</button>
             <button class="main-btn" style="background:#d97706" onclick="openAdminNotes()"><i class="fas fa-bullhorn"></i> التبليغات الإدارية والتأديبية</button>
             <button class="main-btn" style="background:#0284c7" onclick="openMySchedule()"><i class="fas fa-calendar-alt"></i> جدولي الأسبوعي</button>
             <button class="main-btn" style="background:#8b5cf6" onclick="showStats()"><i class="fas fa-chart-pie"></i> نسب نجاحي</button>
@@ -100,7 +101,47 @@
         </div>
     </div>
 
-    <!-- 4. تبويب التبليغات الإدارية -->
+    <!-- 4. تبويب التقييم الجماعي -->
+    <div id="scr-group-eval" class="screen">
+        <button onclick="goHome()" style="border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:10px;"><i class="fas fa-arrow-right"></i> رجوع</button>
+        <h3><i class="fas fa-star-half-alt"></i> التقييم الجماعي للشعبة</h3>
+        <div class="card">
+            <label style="font-size:12px; font-weight:bold;">اختر السنة الدراسية:</label>
+            <select id="ge-year" onchange="checkGroupEvalReady()">
+                <option value="">اختر السنة</option>
+                <option value="2025-2026">2025-2026</option>
+                <option value="2026-2027">2026-2027</option>
+                <option value="2027-2028">2027-2028</option>
+            </select>
+
+            <label style="font-size:12px; font-weight:bold;">اختر الشهر:</label>
+            <select id="ge-month" onchange="checkGroupEvalReady()">
+                <option value="">اختر الشهر</option>
+                <option value="1 - كانون الثاني">1 - كانون الثاني</option>
+                <option value="2 - شباط">2 - شباط</option>
+                <option value="3 - آذار">3 - آذار</option>
+                <option value="4 - نيسان">4 - نيسان</option>
+                <option value="5 - أيار">5 - أيار</option>
+                <option value="6 - حزيران">6 - حزيران</option>
+                <option value="7 - تموز">7 - تموز</option>
+                <option value="8 - آب">8 - آب</option>
+                <option value="9 - أيلول">9 - أيلول</option>
+                <option value="10 - تشرين الأول">10 - تشرين الأول</option>
+                <option value="11 - تشرين الثاني">11 - تشرين الثاني</option>
+                <option value="12 - كانون الأول">12 - كانون الأول</option>
+            </select>
+
+            <select id="ge-stage" onchange="updateGroupEvalFilters('stage')"><option value="">اختر المرحلة</option></select>
+            <select id="ge-dept" onchange="updateGroupEvalFilters('dept')" style="display:none"></select>
+            <select id="ge-class" onchange="updateGroupEvalFilters('class')" style="display:none"></select>
+        </div>
+        <div id="group-eval-student-list" style="margin-bottom:100px;"></div>
+        <div class="footer-fixed">
+            <button id="ge-save-btn" class="send-btn" onclick="sendGroupEvaluation()" style="display:none;">إرسال جميع التقييمات</button>
+        </div>
+    </div>
+
+    <!-- 5. تبويب التبليغات الإدارية -->
     <div id="scr-admin-notes" class="screen">
         <button onclick="goHome()" style="border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:10px;"><i class="fas fa-arrow-right"></i> رجوع</button>
         <h3><i class="fas fa-bullhorn"></i> إرسال تبليغ أو ملاحظة سلوكية</h3>
@@ -114,7 +155,7 @@
         </div>
     </div>
 
-    <!-- 5. تبويب جدولي الأسبوعي -->
+    <!-- 6. تبويب جدولي الأسبوعي -->
     <div id="scr-schedule" class="screen">
         <button onclick="goHome()" style="border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:10px;"><i class="fas fa-arrow-right"></i> رجوع</button>
         <h3><i class="fas fa-calendar-week"></i> جدول الحصص الأسبوعي</h3>
@@ -125,21 +166,21 @@
         <div id="schedule-container"></div>
     </div>
 
-    <!-- 6. نسب النجاح -->
+    <!-- 7. نسب النجاح -->
     <div id="scr-stats" class="screen">
         <button onclick="goHome()" style="border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:15px;"><i class="fas fa-arrow-right"></i> رجوع</button>
         <h3><i class="fas fa-chart-line"></i> إحصائيات نسب النجاح</h3>
         <div id="stats-list"></div>
     </div>
 
-    <!-- 7. الأرشيف -->
+    <!-- 8. الأرشيف -->
     <div id="scr-archive" class="screen">
         <button onclick="goHome()" style="border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:15px;"><i class="fas fa-arrow-right"></i> رجوع</button>
         <h3><i class="fas fa-history"></i> أرشيف إرسالاتك</h3>
         <div id="archive-list"></div>
     </div>
 
-    <!-- 8. العمليات (الغيابات والدرجات) -->
+    <!-- 9. العمليات (الغيابات والدرجات) -->
     <div id="scr-work" class="screen">
         <button onclick="goHome()" style="border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:10px;"><i class="fas fa-arrow-right"></i> رجوع</button>
         <div class="card">
@@ -162,7 +203,6 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaiwrUCv-p3L8X_CFYVmdsLnecxQisrzD9yNuqbwjeLXsNovQZdo_JevDJSdicQDNTjA/exec";
     
-    // توقيت الحصص اليومي
     const PERIOD_TIMES = {
         1: "1:00 – 1:30",
         2: "1:35 – 2:05",
@@ -172,7 +212,6 @@
         6: "4:15 – 4:45"
     };
 
-    // كائن المواد الشامل (تم إزالة الأجهزة الطبية من الثانية وتصحيح التكرار)
     const SUBJECTS = {
         "الاول": { 
             "تكرير النفط ومعالجة الغاز": ["اللغة العربية", "اللغة الانكليزية", "التربية الاسلامية", "الرياضيات", "الطبيعيات", "تطبيقات الحاسوب", "العلوم الصناعية", "الرسم الصناعي", "التدريب العملي", "التربية الرياضية"], 
@@ -186,7 +225,6 @@
     };
 
     const RAW_SCHEDULE = [
-        // الأحد
         { day: "الأحد", period: 1, c: "اول نفط أ", sub: "الرسم", t: "زينب" },
         { day: "الأحد", period: 1, c: "اول نفط د", sub: "التدريب العملي ( م )", t: "غدير محمد" },
         { day: "الأحد", period: 1, c: "اول نفط ب", sub: "رياضيات", t: "منصور" },
@@ -295,7 +333,6 @@
         { day: "الأحد", period: 6, c: "ثاني امن ج", sub: "حماية انظمة", t: "نورالزهراء" },
         { day: "الأحد", period: 6, c: "ثاني امن ب", sub: "رياضيات", t: "اركان" },
 
-        // الإثنين
         { day: "الإثنين", period: 1, c: "اول نفط أ", sub: "التدريب العملي", t: "غدير محمد" },
         { day: "الإثنين", period: 1, c: "اول نفط د", sub: "الرسم", t: "زينب" },
         { day: "الإثنين", period: 1, c: "اول نفط ب", sub: "التدريب العملي (م)", t: "حسين" },
@@ -404,7 +441,6 @@
         { day: "الإثنين", period: 6, c: "ثاني امن ج", sub: "حماية انظمة", t: "نورالزهراء" },
         { day: "الإثنين", period: 6, c: "ثاني امن ب", sub: "رياضيات", t: "اركان" },
 
-        // الثلاثاء
         { day: "الثلاثاء", period: 1, c: "اول نفط أ", sub: "تطبيقات حاسوب ( م)", t: "قيصر" },
         { day: "الثلاثاء", period: 1, c: "اول نفط د", sub: "عربي", t: "سجاد" },
         { day: "الثلاثاء", period: 1, c: "اول نفط ب", sub: "الرسم", t: "زينب" },
@@ -513,7 +549,6 @@
         { day: "الثلاثاء", period: 6, c: "ثاني امن ج", sub: "اساسيات الامن", t: "محمد جاسم" },
         { day: "الثلاثاء", period: 6, c: "ثاني امن ب", sub: "اسلامية", t: "اسماء" },
 
-        // الأربعاء
         { day: "الأربعاء", period: 1, c: "اول نفط أ", sub: "عربي", t: "سجاد" },
         { day: "الأربعاء", period: 1, c: "اول نفط د", sub: "طبيعيات", t: "ايات" },
         { day: "الأربعاء", period: 1, c: "اول نفط ب", sub: "تطبيقات حاسوب", t: "عمار" },
@@ -622,7 +657,6 @@
         { day: "الأربعاء", period: 6, c: "ثاني امن ج", sub: "طبيعيات", t: "ايات" },
         { day: "الأربعاء", period: 6, c: "ثاني امن ب", sub: "انكليزي", t: "فاطمة" },
 
-        // الخميس
         { day: "الخميس", period: 1, c: "اول نفط أ", sub: "العلوم الصناعية", t: "مصطفى" },
         { day: "الخميس", period: 1, c: "اول نفط د", sub: "طبيعيات", t: "ايات" },
         { day: "الخميس", period: 1, c: "اول نفط ب", sub: "التدريب العملي", t: "حسين" },
@@ -794,9 +828,7 @@
     function saveProf() {
         const n = document.getElementById('p-name').value.trim();
         const s = document.getElementById('p-spec').value.trim();
-
         if(!n || !s) return alert("يرجى ملء جميع حقول البصمة الإلكترونية.");
-
         const code = "BYPASS-NOKBA"; 
         localStorage.setItem('nukba_prof', JSON.stringify({n, s, code}));
         updateIdentityBar({n, s, code});
@@ -838,6 +870,228 @@
         document.getElementById('w-dept').style.display = 'none';
         document.getElementById('w-class').style.display = 'none';
         document.getElementById('w-sub').style.display = 'none';
+    }
+
+    // دوال التقييم الجماعي
+    function openGroupEvaluation() {
+        showScreen('scr-group-eval');
+        document.getElementById('ge-year').value = "";
+        document.getElementById('ge-month').value = "";
+        document.getElementById('group-eval-student-list').innerHTML = "";
+        document.getElementById('ge-save-btn').style.display = 'none';
+        
+        let stages = [...new Set(db.map(x => x["المرحلة"]))].filter(Boolean);
+        stages.sort((a, b) => {
+            if (a.includes("اول") || a.includes("الأول")) return -1;
+            if (b.includes("اول") || b.includes("الأول")) return 1;
+            return 0;
+        });
+
+        const sel = document.getElementById('ge-stage');
+        sel.innerHTML = '<option value="">اختر المرحلة</option>';
+        stages.forEach(st => sel.innerHTML += `<option value="${st}">${st}</option>`);
+        document.getElementById('ge-dept').style.display = 'none';
+        document.getElementById('ge-class').style.display = 'none';
+    }
+
+    function checkGroupEvalReady() {
+        const year = document.getElementById('ge-year').value;
+        const month = document.getElementById('ge-month').value;
+        const cls = document.getElementById('ge-class').value;
+        if(year && month && cls) {
+            renderGroupEvalStudents();
+        }
+    }
+
+    function updateGroupEvalFilters(level) {
+        const stage = document.getElementById('ge-stage').value;
+        const deptSel = document.getElementById('ge-dept');
+        const classSel = document.getElementById('ge-class');
+
+        if(level === 'stage') {
+            deptSel.innerHTML = '<option value="">اختر القسم</option>';
+            classSel.innerHTML = '<option value="">اختر الشعبة</option>';
+            classSel.style.display = 'none';
+            document.getElementById('group-eval-student-list').innerHTML = "";
+            document.getElementById('ge-save-btn').style.display = 'none';
+
+            if(stage) {
+                const depts = [...new Set(db.filter(x => x["المرحلة"] == stage).map(x => x["القسم"]))].filter(Boolean);
+                depts.forEach(d => deptSel.innerHTML += `<option value="${d}">${d}</option>`);
+                deptSel.style.display = 'block';
+            } else {
+                deptSel.style.display = 'none';
+            }
+        } else if(level === 'dept') {
+            const dept = deptSel.value;
+            classSel.innerHTML = '<option value="">اختر الشعبة</option>';
+            document.getElementById('group-eval-student-list').innerHTML = "";
+            document.getElementById('ge-save-btn').style.display = 'none';
+
+            if(stage && dept) {
+                const cls = [...new Set(db.filter(x => x["المرحلة"] == stage && x["القسم"] == dept).map(x => x["الشعبة"]))].filter(Boolean);
+                cls.forEach(c => classSel.innerHTML += `<option value="${c}">${c}</option>`);
+                classSel.style.display = 'block';
+            } else {
+                classSel.style.display = 'none';
+            }
+        } else if(level === 'class') {
+            checkGroupEvalReady();
+        }
+    }
+
+    function renderGroupEvalStudents() {
+        const year = document.getElementById('ge-year').value;
+        const month = document.getElementById('ge-month').value;
+        const stage = document.getElementById('ge-stage').value;
+        const dept = document.getElementById('ge-dept').value;
+        const cls = document.getElementById('ge-class').value;
+        const container = document.getElementById('group-eval-student-list');
+        
+        container.innerHTML = "";
+        if(!year || !month || !stage || !dept || !cls) return;
+
+        const storageKey = `group_eval_${year}_${stage}_${dept}_${cls}_${month}`;
+        let savedEvaluations = JSON.parse(localStorage.getItem(storageKey)) || {};
+
+        const students = db.filter(x => x["المرحلة"] == stage && x["القسم"] == dept && x["الشعبة"] == cls);
+        
+        students.forEach(st => {
+            const row = document.createElement('div');
+            row.className = 'card student-row';
+            row.setAttribute('data-id', st["الرمز المدرسي"]);
+            row.setAttribute('data-name', st["اسم الطالب"]);
+
+            const currentVal = savedEvaluations[st["الرمز المدرسي"]] || "";
+
+            row.innerHTML = `
+                <b>${st["اسم الطالب"]}</b>
+                <textarea class="eval-textarea" placeholder="اكتب تقييم الطالب هنا..." style="margin-top:8px; margin-bottom:8px; min-height:70px;" oninput="saveGroupEvalLocal()">${currentVal}</textarea>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="quick-btn" style="background:#ecfdf5; color:#065f46; border:1px solid #10b981;" onclick="generateEvalText(this, 'positive')"><i class="fas fa-smile"></i> توليد تقييم إيجابي</button>
+                    <button type="button" class="quick-btn" style="background:#fef2f2; color:#991b1b; border:1px solid #ef4444;" onclick="generateEvalText(this, 'negative')"><i class="fas fa-frown"></i> توليد تقييم سلبي</button>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+        document.getElementById('ge-save-btn').style.display = 'block';
+    }
+
+    function generateEvalText(btn, type) {
+        const row = btn.closest('.student-row');
+        const textarea = row.querySelector('.eval-textarea');
+        
+        const positiveOptions = [
+            "طالب جيد، ملتزم ومجتهد في دروسه.",
+            "متميز في الحضور والمشاركة الصفية، بارك الله فيه.",
+            "مجتهد، دقيق في مواعيده وحريص على التحضير.",
+            "مستواه ممتاز، يظهر تفاعلاً إيجابياً وملتزم بالتعليمات.",
+            "طالب خلوق، مواظب على واجباته ومستوى فهمه عالٍ.",
+            "أداء رائع في المادة، يظهر حرصاً كبيراً على التفوق.",
+            "نشط ومبادر في القاعة الدراسية وتفاعله ممتاز.",
+            "ملتزم بالهدوء والانضباط ويسعى دائماً للأفضل.",
+            "طالب متفوق ومواظب على الحضور والتحضير اليومي.",
+            "سلوكه ممتاز ويتعاون بشكل إيجابي مع المدرس والزملاء.",
+            "مستوى استيعابه ممتاز ويظهر اهتماماً ملحوظاً بالمادة.",
+            "طالب مثالي في أخلاقه والتزامه بالمواعيد والواجبات.",
+            "يجتهد باستمرار، ومستواه العلمي في تقدم مستمر.",
+            "يتمتع بحس مسؤولية عالٍ وحريص على متابعة دروسه.",
+            "تفاعله ممتاز في الدرس ويستجيب للملاحظات بسرعة.",
+            "طالب متفهم، حريص على إنجاز المهام المطلوبة بدقة.",
+            "مستواه الدراسي يدعو للفخر والاعتزاز، واصل التميز.",
+            "من الطلبة الملتزمين جداً بالواجبات والانضباط الصفي.",
+            "مشارك فعال في الحصة ويمتلك مهارات استيعاب ممتازة.",
+            "طالب ملتزم، خلوق، ومجتهد يستحق كل الثناء والتوفيق."
+        ];
+
+        const negativeOptions = [
+            "الطالب يحتاج إلى مزيد من المتابعة والالتزام بالتحضير اليومي.",
+            "يعاني من بعض الإخفاقات ويتطلب تركيزاً أكبر في الدرس.",
+            "بحاجة ماسة لتحسين مستوى الانضباط والالتزام بالواجبات.",
+            "يفتقر للمتابعة المستمرة ويحتاج إلى حث ودعم من ولي الأمر.",
+            "كثير السهو والانشغال أثناء الشرح، يرجى التنبيه والمتابعة.",
+            "مستواه تراجع مؤخراً ويحتاج لزيادة ساعات الدراسة المنزلية.",
+            "مهمل في إحضار دفاتر المواد وإنجاز الواجبات اليومية.",
+            "يتأخر في استيعاب المادة بسبب قلة التحضير المسبق.",
+            "يحتاج لإعادة تنظيم وقته والتركيز بشكل أكبر على الدروس.",
+            "كثير الغياب والتأخر مما أثر سلباً على مستواه العلمي.",
+            "ضعيف التفاعل في القاعة ويحتاج إلى تشجيع ومتابعة جادة.",
+            "غير ملتزم بالهدوء الصفي مما يؤثر على تركيزه بالدرس.",
+            "درجاته تحتاج إلى تحسين ملحوظ بزيادة الجهد والمثابرة.",
+            "يتكاسل في أداء الواجبات المطلوبة منه في الوقت المحدد.",
+            "يحتاج للابتعاد عن المشتتات والتركيز التام أثناء الشرح.",
+            "مستواه العلمي غير مستقر ويحتاج إلى اهتمام ومتابعة يومية.",
+            "يتساهل في إكمال المهام ويحتاج حزماً ومتابعة في البيت.",
+            "ضعيف المتابعة في المادة ويحتاج تكثيف دراسي عاجل.",
+            "يحتاج إلى تحسين التزامه بالحضور وعدم التفريط بالدروس.",
+            "يحتاج إلى جدية أكبر في التعامل مع المادة والامتحانات."
+        ];
+
+        const list = (type === 'positive') ? positiveOptions : negativeOptions;
+        const randomText = list[Math.floor(Math.random() * list.length)];
+        
+        textarea.value = randomText;
+        saveGroupEvalLocal();
+    }
+
+    function saveGroupEvalLocal() {
+        const year = document.getElementById('ge-year').value;
+        const month = document.getElementById('ge-month').value;
+        const stage = document.getElementById('ge-stage').value;
+        const dept = document.getElementById('ge-dept').value;
+        const cls = document.getElementById('ge-class').value;
+        if(!year || !month || !stage || !dept || !cls) return;
+
+        const storageKey = `group_eval_${year}_${stage}_${dept}_${cls}_${month}`;
+        const data = {};
+        document.querySelectorAll('#group-eval-student-list .student-row').forEach(r => {
+            const val = r.querySelector('.eval-textarea').value.trim();
+            if(val) data[r.getAttribute('data-id')] = val;
+        });
+        localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+
+    async function sendGroupEvaluation() {
+        const prof = JSON.parse(localStorage.getItem('nukba_prof'));
+        const year = document.getElementById('ge-year').value;
+        const month = document.getElementById('ge-month').value;
+        const stage = document.getElementById('ge-stage').value;
+        const dept = document.getElementById('ge-dept').value;
+        const cls = document.getElementById('ge-class').value;
+
+        let dataRows = [];
+        document.querySelectorAll('#group-eval-student-list .student-row').forEach(r => {
+            const val = r.querySelector('.eval-textarea').value.trim();
+            if(val) {
+                dataRows.push({
+                    "الرمز المدرسي": r.getAttribute('data-id'),
+                    "اسم الطالب": r.getAttribute('data-name'),
+                    "المرحلة": stage,
+                    "القسم": dept,
+                    "الشعبة": cls,
+                    "المادة": "التقييم الجماعي",
+                    "الفترة": val,
+                    "الحالة": "تقييم شهري",
+                    "التأكيد": val,
+                    "المدرس": prof.n,
+                    "الرمز السري": prof.code,
+                    "التاريخ": new Date().toLocaleDateString('ar-EG')
+                });
+            }
+        });
+
+        if(dataRows.length === 0) return alert("يرجى كتابة تقييم لطالب واحد على الأقل قبل الإرسال.");
+
+        document.getElementById('upload-overlay').style.display = 'flex';
+        document.getElementById('overlay-text').innerText = "جاري إرسال التقييمات الجماعية...";
+
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({type: 'attendance', data: dataRows}) });
+            saveToArchive('تبليغ إداري', stage, dept, cls, 'التقييم الجماعي', dataRows, `${year} - ${month}`);
+            alert("تم إرسال التقييمات الجماعية بنجاح.");
+            goHome();
+        } catch(e) { alert("حدث خطأ أثناء الإرسال."); }
+        document.getElementById('upload-overlay').style.display = 'none';
     }
 
     function openAdminNotes() {
@@ -901,7 +1155,7 @@
             "القسم": dept,
             "الشعبة": cls,
             "المادة": "ملاحظة سلوكية",
-            "الفترة": noteText,          /* تم ضبط العمود السابع (الفترة) ليحتوي على نص الملاحظة كما كتبها المدرس */
+            "الفترة": noteText,
             "الحالة": "ملاحظة سلوكية",
             "التأكيد": noteText,
             "المدرس": prof.n,
@@ -944,14 +1198,12 @@
         if(!teacherName) return;
 
         const teacherItems = WEEKLY_SCHEDULE.filter(x => x.teacher === teacherName);
-
         if(teacherItems.length === 0) {
             container.innerHTML = "<p style='text-align:center;'>لا توجد حصص مسجلة لهذا المدرس في الجدول الحالي.</p>";
             return;
         }
 
         const days = [...new Set(teacherItems.map(x => x.day))];
-
         days.forEach(d => {
             const dayCard = document.createElement('div');
             dayCard.className = 'card';
@@ -1079,7 +1331,7 @@
             if(currentMode === 'grades') { 
                 val = r.querySelector('input').value.trim(); 
                 status = (pVal === "نصف السنة") ? "درجة نصف السنة" : eVal; 
-                if(!val) return; 
+                if(val === "") return; // تعديل الشرط ليشمل قبول الدرجات والصيغ النصية مثل غائب ومؤجل بدقة
                 dataRows.push({
                     "الرمز المدرسي": r.getAttribute('data-id'),
                     "اسم الطالب": r.getAttribute('data-name'),
@@ -1201,5 +1453,3 @@
 </script>
 </body>
 </html>
-
-```
